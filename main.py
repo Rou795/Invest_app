@@ -1,6 +1,21 @@
 from tinkoff.invest import Client
 from datetime import datetime
 
+# класс для денег
+class Money:
+    def __int__(self, unit, fractional, currency):
+        self.unit = unit
+        self.fractional = fractional // 10000000
+        self.currency = currency
+        self.numeration = 100
+        self.value = unit * 100 + fractional
+
+    def __str__(self):
+        return f'{self.unit} руб. {self.fractional} коп.'
+
+    def __mul__(self, other):
+        return self.value * other
+
 # метод для получения купонов
 
 def getcoupons(bonds):
@@ -12,18 +27,24 @@ def getcoupons(bonds):
 
         bond['coupons'] = {'date': [], 'pay_one_bond': []}
         bond['coupons']['date'].extend([coupon.coupon_date for coupon in coupons])
-        bond['coupons']['pay_one_bond'].extend([coupon.pay_one_bond.units for coupon in coupons])
-        bonds_coupons.append({'isin': bond['instrument_isin'], 'quantity': bond['quantity'],
-                              'coupons': zip(bond['coupons']['date'], bond['coupons']['pay_one_bond'])})
+        moneys = [coupon.pay_one_bond for coupon in coupons]
+        print(moneys[0].units, moneys[1].nano, moneys[2].currency)
+        example = Money(33, 100, 'rub')
+        print(example)
+        moneys_new = [Money(coupon.units, coupon.nano, coupon.currency) for coupon in moneys]
+        print(moneys_new)
+#        bond['coupons']['pay_one_bond'].extend([coupon.pay_one_bond for coupon in coupons])
+#        bonds_coupons.append({'isin': bond['instrument_isin'], 'quantity': bond['quantity'],
+       #                       'coupons': zip(bond['coupons']['date'], bond['coupons']['pay_one_bond'])})
     middle = []
 
 # приводим в удобный вид для дальнейшей работы с данными
 
     for bond in bonds_coupons:
-        for idx, coupon in enumerate(bond['coupons']):
-            middle.append((coupon[0], coupon[1] * bond['quantity']))
-        bond['coupons'] = middle.copy()
-        middle.clear()
+         for idx, coupon in enumerate(bond['coupons']):
+             middle.append((coupon[0], coupon[1] * bond['quantity']))
+         bond['coupons'] = middle.copy()
+         middle.clear()
     print(bonds_coupons)
     return bonds_coupons
 
